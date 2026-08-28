@@ -16,16 +16,16 @@ npm run dev
 
 The site works without Supabase. The blog shows an empty state and the writing desk explains what is missing.
 
-## The writing desk
+## Putting it live
 
 1. Create a Supabase project.
-2. Run `supabase/schema.sql` in the SQL editor. It makes the table, the search index, the rules about
-   who can write, and the image bucket.
-3. Optionally run `supabase/seed.sql`, which puts one post in as a draft.
-4. Put the three values from `.env.example` into Vercel.
-5. Configure custom SMTP in Supabase, because the built in mail is rate limited and the sign in link
-   depends on it.
-6. Go to `/admin`, sign in by email link, and write. Drag an image straight into the text.
+Full walkthrough in [`SETUP.md`](SETUP.md). The short version:
+
+1. Create a Neon project, run `db/schema.sql` in its SQL editor.
+2. Run `db/seed.sql` to put the first post in.
+3. Import the repo on Vercel with the values from `.env.example`, set on the import screen.
+4. Add a public Blob store, then redeploy so the token is picked up.
+5. Go to `/admin`, sign in with your password, and write. Drag an image straight into the text.
 
 ## Rules this repo keeps
 
@@ -34,7 +34,7 @@ that is not in there. Two claims on the resume are wrong and are deliberately no
 collector-contrib 46819 is closed rather than merged, and SeedSigner 916 and 927 are still open.
 
 Prose carries no dashes and no jargon. Repository names, URLs and benchmark output keep their real
-characters. See [`04_CONTENT_TRUTH.md`](04_CONTENT_TRUTH.md).
+characters, because changing those would break links and misname real projects.
 
 ## Rebuilding the resume
 
