@@ -1,6 +1,6 @@
 import "server-only";
 import { marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 import { getStore, storeReady } from "./store";
 import type { Post } from "./store/types";
 export type { Post } from "./store/types";
@@ -10,10 +10,27 @@ marked.setOptions({ gfm: true, breaks: false });
 /**
  * marked does not sanitize. Today the only author is Saharsh, so this is self inflicted only,
  * but the moment anything renders text he did not type it is live. Sanitize regardless.
+ *
+ * sanitize-html rather than DOMPurify: DOMPurify needs a DOM, so the isomorphic wrapper drags in
+ * 11MB of jsdom, which failed to load in the serverless function and took the whole blog down with
+ * it. This parses with htmlparser2 and needs no DOM at all.
  */
 export function renderMarkdown(md: string): string {
-  return DOMPurify.sanitize(marked.parse(md, { async: false }) as string, {
-    ADD_ATTR: ["target", "rel"],
+  return sanitizeHtml(marked.parse(md, { async: false }) as string, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "figure", "figcaption", "h1", "h2"]),
+    allowedAttributes: {
+      a: ["href", "name", "target", "rel"],
+      img: ["src", "alt", "title", "width", "height", "loading"],
+      code: ["class"],
+      span: ["class"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    transformTags: {
+      a: (tag, attribs) => ({
+        tagName: "a",
+        attribs: { ...attribs, ...(attribs.href?.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {}) },
+      }),
+    },
   });
 }
 
