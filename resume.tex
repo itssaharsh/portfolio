@@ -62,7 +62,7 @@
 
 %---------- SUMMARY ----------
 \section{Summary}
-Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 10+ merged pull requests into OpenTelemetry (CNCF graduated) and pandas. Builds backend services and Bitcoin protocol tools in Go and Python. Seeking a Backend / AI Software Engineer Internship focused on distributed systems, developer tooling, and observability.
+Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 11 merged pull requests into OpenTelemetry (CNCF graduated) and pandas, and 10 more under review. Builds backend services and Bitcoin protocol tools in Go and Python. Seeking a Backend / AI Software Engineer Internship focused on distributed systems, developer tooling, and observability.
 
 %---------- TECHNICAL SKILLS ----------
 \section{Technical Skills}
@@ -83,8 +83,8 @@ Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 10+ merg
     \resumeItem{Found and fixed a quadratic scan in \texttt{kubernetes-sigs/resource-state-metrics} metric generation --- a single pass over the resolved map dropped it 99\% and took allocations from 421 to 2 (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/102}{\#102}) --- and cached Starlark compilation behind \texttt{sync.Once} so scripts compile once per resolver rather than once per object, for a further 67\% (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/101}{\#101}). Both in review.}
     \resumeItem{The \texttt{net/http} hooks in \texttt{otelc} run on every request, so swapping their map-based state for a typed struct and gating debug logging behind a level check cut hook latency 19\% and allocations from 27 to 21 per request (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1137}{\#1137}). A second skips the tool-file rewrite and \texttt{go mod tidy} when nothing changed, saving $\sim$16s per steady-state build (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1136}{\#1136}). Both in review.}
     \resumeItem{In \texttt{opentelemetry-go}, replaced the two-pass \texttt{traceparent} decode with a generated reverse hex table that decodes and validates in one pass, taking 9--11\% off \texttt{Extract} (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8739}{\#8739}), and unrolled the trace and span ID hex decoders so the compiler can drop all 12 bounds checks, worth 33\% and 28\% at zero allocations (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8740}{\#8740}). Both in review.}
-    \resumeItem{Merged earlier: \texttt{Enabled()} guards across the OTLP-gRPC log, OTLP-HTTP trace, and Prometheus exporters, skipping attribute work when telemetry is off (\#7824, \#7881, \#7866); a 72-file \texttt{semconv} v1.37.0 to v1.39.0 migration (\#7789); histogram buckets generated from \texttt{weaver.yaml} (\#8015); tests for \texttt{Key.Emit()} and \texttt{Resource} merge behaviour (\#7751, \#7764); a Collector build fix (contrib \#46467) and an \texttt{assume\_current\_date} option for the stanza time parser (contrib \#46819).}
-    \resumeItem{Outside Go: added custom BIP-32 derivation paths and Taproot (P2TR) multisig address verification to the SeedSigner Address Explorer (\#916, \#927), and carried a \texttt{check\_array\_indexer} documentation fix through pandas maintainer review (\#62573).}
+    \resumeItem{Merged earlier: \texttt{Enabled()} guards across the OTLP-gRPC, OTLP-HTTP, and Prometheus exporters, skipping attribute work when telemetry is off (\#7824, \#7825, \#7881, \#7866); a 72-file \texttt{semconv} v1.37.0 to v1.39.0 migration (\#7789); histogram buckets generated from \texttt{weaver.yaml} (\#8015); tests for \texttt{Key.Emit()} and \texttt{Resource} merge (\#7751, \#7764); a spec overview update (\#5112); and a Collector build fix (contrib \#46467).}
+    \resumeItem{Outside Go: merged a \texttt{check\_array\_indexer} documentation fix into pandas (\#62573). Open in SeedSigner: custom BIP-32 derivation paths and Taproot (P2TR) multisig verification for the Address Explorer (\#916, \#927).}
   \end{itemize}
 \end{itemize}
 %---------- PROJECTS ----------
@@ -139,7 +139,7 @@ Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 10+ merg
 %---------- COMPETITIVE PROGRAMMING ----------
 \section{Competitive Programming}
 \begin{itemize}
-  \resumeItem{Solved 350+ Data Structures \& Algorithms problems on LeetCode; CodeChef 3-Star (highest rating 1741); Codeforces Pupil (max rating 1295).}
+  \resumeItem{350+ DSA problems solved on LeetCode; CodeChef 3-Star (max 1741); Codeforces Pupil (max 1295).}
 \end{itemize}
 
 \end{document}
