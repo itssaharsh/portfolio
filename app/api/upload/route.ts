@@ -3,7 +3,9 @@ import { signedIn } from "@/lib/auth";
 import { getStore } from "@/lib/store";
 
 export const runtime = "nodejs";
-const MAX = 8 * 1024 * 1024;
+/* Vercel Functions cap the request body at 4.5MB, so the ceiling is theirs, not ours.
+   Refusing at 4MB gives a clear message instead of an opaque platform error. */
+const MAX = 4 * 1024 * 1024;
 
 /**
  * Images go through the server so the browser never holds a write token.
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
   const file = form.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "No file." }, { status: 400 });
   if (!file.type.startsWith("image/")) return NextResponse.json({ error: "Images only." }, { status: 415 });
-  if (file.size > MAX) return NextResponse.json({ error: "That image is over 8MB." }, { status: 413 });
+  if (file.size > MAX) return NextResponse.json({ error: "That image is over 4MB. Resize it and try again." }, { status: 413 });
 
   const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
   const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;

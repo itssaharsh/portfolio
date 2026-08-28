@@ -68,7 +68,7 @@ export default function Editor({ post }: { post?: Post }) {
 
       <div className="grid gap-1">
         <span className="font-mono text-[10px] tracking-[.1em] uppercase text-ink-2">
-          The post. Drag an image straight in, or paste one.
+          The post. Drag an image straight in, or paste one. Up to 4MB each.
         </span>
         <textarea
           ref={ta} name="body_md" value={body} onChange={(e) => setBody(e.target.value)}

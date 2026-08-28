@@ -1,115 +1,171 @@
-# Setup, in order
+# Running it, and putting it live
 
-About twenty minutes. Nothing here needs a credit card.
+Every step below was checked against the current Vercel and Neon documentation, and the local
+path was tested from a clean clone. Nothing needs a credit card.
 
 ---
 
-## 1. Make two secrets
+## Part 1. Running it on your machine
 
 ```bash
-openssl rand -base64 24     # this is ADMIN_PASSWORD
-openssl rand -base64 32     # this is SESSION_SECRET
+git clone https://github.com/itssaharsh/portfolio
+cd portfolio
+npm install
+npm run dev
 ```
 
-Keep them somewhere. The first is what you type to sign in. Do not pick a memorable password
-instead: there is no rate limiting on the sign in, so the only thing protecting it is that the
-password is not guessable.
+Open **http://localhost:3000**. That is the whole thing.
 
-Changing `SESSION_SECRET` later signs you out of every device instantly. That is your emergency stop.
+**It runs with no configuration at all.** Verified from a fresh clone: the homepage, the blog and
+the resume all serve, `/admin` correctly bounces you to the sign in page, and the build succeeds
+with an empty environment. The blog just says nothing is published yet, because there is no
+database behind it. Ready in about 1.4 seconds.
+
+To write posts locally, make a `.env.local` (it is gitignored, it never leaves your machine):
+
+```bash
+cp .env.example .env.local
+openssl rand -base64 24     # paste as ADMIN_PASSWORD
+openssl rand -base64 32     # paste as SESSION_SECRET
+```
+
+Fill `DATABASE_URL` too once you have done Part 2. `next dev` reads `.env.local` on its own.
+
+To check the real production build before pushing:
+
+```bash
+npm run build && npm start
+```
 
 ---
 
-## 2. Neon, for the posts
+## Part 2. Neon, which holds the posts
 
-1. Go to **neon.com** and sign up with GitHub. No card.
-2. Create a project. Any name, any region near you.
-3. On the dashboard, copy the **pooled** connection string. It looks like
-   `postgresql://user:pass@ep-something-pooler.region.aws.neon.tech/neondb?sslmode=require`.
-   That is `DATABASE_URL`.
-4. Open the **SQL Editor** in Neon, paste the whole of `db/schema.sql`, run it.
-5. Optionally paste `db/seed.sql` and run that too. It puts the OpenTelemetry post in as a
-   **draft**, so nothing is public until you say so.
+1. Go to **neon.com**, sign up with GitHub. No card.
+2. Create a project. Any name. Pick a region near you.
+3. On the **Project Dashboard**, click **Connect**. Leave the **Connection pooling** toggle **on**,
+   which is the default, and copy the string. The hostname will contain `-pooler`.
+   That is your `DATABASE_URL`.
 
-What you get free, from Neon's own pricing page: 0.5 GB, 100 compute hours a month, permanent, no
-card. It sleeps after five minutes of no traffic, so the first visitor after a quiet spell waits
-about a second. Everyone after that does not.
+   Use it exactly as given. Do not append anything. It already carries `sslmode` and
+   `channel_binding`. Neon's own guide says to assign it as is.
+
+   Pooled is right here because this app opens many short lived connections. Direct is for schema
+   migrations and long lived connections, which is not what this does.
+
+4. Open **SQL Editor** in the Neon console, paste the whole of **`db/schema.sql`**, and press Run.
+   Multi statement scripts are supported there, so the whole file goes in at once.
+5. Optionally paste **`db/seed.sql`** and run it. That puts the OpenTelemetry post in as a
+   **draft**. Nothing is public until you publish it.
+
+Free forever: 0.5 GB and 100 compute hours a month, from Neon's own pricing page. The database
+sleeps after five minutes of no traffic, so the first visitor after a quiet spell waits about a
+second. Nobody after that does. If you ever run out of compute hours the database is suspended,
+not deleted.
 
 ---
 
-## 3. Vercel, for the site and the images
+## Part 3. Vercel, which serves the site
 
-1. **vercel.com** → Add New → Project → import `itssaharsh/portfolio`.
-2. It will detect Next.js. Do not change the build settings.
-3. Before you press Deploy, add the environment variables:
+**Read this bit before you start, it saves a confusing hour.** Vercel's docs are explicit:
+
+> Changes to environment variables are not applied to previous deployments, they only apply to new
+> deployments. You must redeploy your project.
+
+So set everything on the **import screen, before you press Deploy**. Anything added later needs a
+redeploy before it does anything.
+
+1. **vercel.com** → **New Project** → import `itssaharsh/portfolio`.
+2. It detects Next.js on its own. Do not touch the build settings. Turbopack is already the
+   default bundler and needs no configuration. Node 24 is the default and is correct, so leave
+   `engines` out of `package.json`.
+3. Expand **Environment Variables** on that same screen and add:
 
    | Name | Value |
    |---|---|
    | `BLOG_STORE` | `neon` |
-   | `ADMIN_PASSWORD` | the first secret from step 1 |
-   | `SESSION_SECRET` | the second secret from step 1 |
+   | `ADMIN_PASSWORD` | your first secret |
+   | `SESSION_SECRET` | your second secret |
    | `DATABASE_URL` | the pooled string from Neon |
-   | `NEXT_PUBLIC_SITE_URL` | your address, once you know it |
 
-4. Deploy.
-5. Then go to the **Storage** tab, create a **Blob** store, and connect it to this project.
-   Vercel sets `BLOB_READ_WRITE_TOKEN` for you. **Redeploy** so the new variable is picked up.
+   Leave `NEXT_PUBLIC_SITE_URL` for now. You do not know the address yet.
+4. Press **Deploy**.
 
-Blob free allowance: 1 GB stored, 10 GB transfer a month. If you ever exceed it, it stops working
-until the month rolls over rather than charging you.
+### Then the image store
+
+5. In the project, go to **Storage** → **Create Database** → **Blob**.
+6. Set access to **Public**. This cannot be changed later, and blog images need to be public.
+   The region cannot be changed later either.
+7. Tick **Development** as well as Production and Preview, so `vercel env pull` gives you the
+   token locally too.
+8. **Redeploy.** Vercel adds `BLOB_READ_WRITE_TOKEN` when you connect the store, and by the rule
+   above your live deployment cannot see it until you redeploy. Uploads fail until you do.
+
+   Deployments tab → the newest one → the three dots → **Redeploy**.
+
+### Then the address
+
+9. Your project gets a stable `something.vercel.app`. Copy it.
+10. Settings → Environment Variables → add `NEXT_PUBLIC_SITE_URL` with that address → **redeploy**.
+    This one is baked in at build time, which is why it needs the redeploy.
+
+**Permanently live from here on.** Every push to `main` deploys to production automatically. Pushes
+to any other branch get their own preview URL and do not touch the live site.
 
 ---
 
-## 4. Check it worked
+## Part 4. Check it actually works
 
-- The site loads, and the blocks fall in.
-- `/blog` loads and says nothing is published yet.
-- `/admin` sends you to a password box.
-- Sign in. Write something. Drag an image into the text. Publish. It appears immediately.
-- Sign out, then open `/admin` in a private window and confirm it will not let you in.
+- The site loads and the blocks fall in. Press `g`.
+- `/blog` loads.
+- `/admin` asks for the password. Type it. You are in for seven days.
+- Write a post, drag an image into the text, tick Published, save. It appears immediately.
+- Search a word from inside the post body on `/blog`.
+- Open `/admin` in a private window and confirm it will not let you in.
+
+Images are capped at 4MB each, because Vercel Functions refuse request bodies over 4.5MB.
 
 ---
 
-## 5. The old address
+## Part 5. The old address
 
-Applications you have already sent link to `itssaharsh.github.io/portfolio`. The `index.html` in
-the repo root keeps that landing on a page saying the site moved, rather than a 404.
+Applications you have already sent point at `itssaharsh.github.io/portfolio`. The `index.html` in
+the repo root keeps that landing on a page that says the site moved, instead of a 404. It is
+ignored by Next and by Vercel.
 
-Once Vercel gives you the real address, put it in that file's link, and add this line inside its
-`<head>` so it forwards automatically:
+Once you have loaded your real address and seen it work, edit that file: put the address in the
+link, and add this inside its `<head>`:
 
 ```html
 <meta http-equiv="refresh" content="0; url=https://your-real-address">
 ```
 
-Do not add the redirect before you have loaded the address yourself and seen it work.
+Not before. A redirect to an address you have not tested is worse than the page that is there now.
+
+### A custom domain, if you buy one
+
+Settings → Domains → add it → Vercel gives you the DNS records to paste at your registrar. Then
+update `NEXT_PUBLIC_SITE_URL` and redeploy. A real domain on a resume reads better than a
+`vercel.app` address, but it is not urgent.
 
 ---
 
 ## When Supabase frees up
 
-Nothing has to be rewritten. In Vercel:
-
-1. Set `BLOG_STORE=supabase`.
-2. Add `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
-3. Run the same `db/schema.sql` in the Supabase SQL editor.
-4. Create a public storage bucket called `post-images`.
-5. Redeploy.
-
-Sign in does not change, because it was never part of the storage.
-
-Moving existing posts across is a `pg_dump` of the `posts` table from Neon and a restore into
-Supabase. Ask me and I will write the command out.
+Nothing gets rewritten. In Vercel: set `BLOG_STORE=supabase`, add `NEXT_PUBLIC_SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY`, run the same `db/schema.sql` in the Supabase SQL editor, create a
+public bucket called `post-images`, and redeploy. Sign in does not change, because it was never
+part of the storage.
 
 ---
 
 ## Two things still on you
 
-**Your resume has two claims GitHub disagrees with.** `resume.tex` lists
-`opentelemetry-collector-contrib` 46819 under merged work, and the API says it is **closed**.
-It also presents SeedSigner 916 and 927 as delivered, and both are still **open**. The site does not
-repeat either, but the PDF a recruiter downloads still does. Fix `resume.tex`, then run
+**Your resume contradicts GitHub in two places.** `resume.tex` lists
+`opentelemetry-collector-contrib` 46819 as merged work and the API reports it **closed**. It also
+presents SeedSigner 916 and 927 as delivered, and both are still **open**. The site does not repeat
+either claim, but the PDF a recruiter downloads still does. Fix `resume.tex`, then run
 `npm run resume`.
 
-**The seeded post is a draft on purpose.** It is 991 words in plain language about what
-OpenTelemetry actually is. Read it, put it in your own voice, then publish it. It reads better
-coming from you than from me.
+**The seeded post is a draft deliberately.** 991 words in plain language on what OpenTelemetry
+actually is. Read it, make it sound like you, then publish.
