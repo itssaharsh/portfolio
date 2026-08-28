@@ -2,6 +2,7 @@ import "server-only";
 import { marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
 import { getStore, storeReady } from "./store";
+import type { Post } from "./store/types";
 export type { Post } from "./store/types";
 
 marked.setOptions({ gfm: true, breaks: false });
@@ -35,9 +36,28 @@ export function slugify(title: string): string {
 }
 
 /**
- * Read paths degrade to empty rather than throwing, so the site builds and serves before any
- * backend exists. Write paths still throw, because a silent failed save is worse than an error.
+ * Read paths never throw. A portfolio blog that answers 500 because a database was asleep or a
+ * connection string was mistyped is worse than one that quietly shows nothing. Write paths still
+ * throw, because a save that silently does nothing is worse than an error.
+ *
+ * The reason is logged, so it is visible in the Vercel function logs, and exposed through
+ * /api/health without ever revealing the credential.
  */
-export const listPublished = async (q?: string) => (storeReady() ? getStore().listPublished(q) : []);
-export const getPost = async (slug: string) => (storeReady() ? getStore().getBySlug(slug) : null);
-export const listAll = async () => (storeReady() ? getStore().listAll() : []);
+export let lastReadError: string | null = null;
+
+async function safe<T>(fallback: T, run: () => Promise<T>): Promise<T> {
+  if (!storeReady()) return fallback;
+  try {
+    const out = await run();
+    lastReadError = null;
+    return out;
+  } catch (e) {
+    lastReadError = e instanceof Error ? e.message : String(e);
+    console.error("[blog] read failed:", lastReadError);
+    return fallback;
+  }
+}
+
+export const listPublished = (q?: string) => safe<Post[]>([], () => getStore().listPublished(q));
+export const getPost = (slug: string) => safe<Post | null>(null, () => getStore().getBySlug(slug));
+export const listAll = () => safe<Post[]>([], () => getStore().listAll());
