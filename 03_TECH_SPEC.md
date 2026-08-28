@@ -31,6 +31,25 @@ pointing at `@supabase/ssr`. Most tutorials online are stale on this. Use `@supa
 /api/og/[...]        generated preview images
 ```
 
+## Storage is swappable
+
+The blog talks to `PostStore` in `lib/store/types.ts` and never to a vendor. `BLOG_STORE` picks the
+adapter. Nothing else in the app knows which is in use.
+
+| Value | Posts | Images | Notes |
+|---|---|---|---|
+| `neon` (default) | Neon Postgres | Vercel Blob | free, permanent, no card. Sleeps after five minutes of no traffic |
+| `supabase` | Supabase Postgres | Supabase Storage | switch to this when the account frees up |
+
+Both are Postgres, so `db/schema.sql` and the weighted tsvector search are identical on either.
+
+Sign in is deliberately **not** part of the store. It is one password in an environment variable,
+checked in a Server Action, issued as an HS256 signed httpOnly cookie by `jose@6.2.10`. That is what
+the Next.js authentication guide recommends for this, and Server Actions compare Origin against Host
+so cross site request forgery is covered. Route Handlers get none of that, which settles the choice.
+
+Because sign in does not change when the store does, swapping backends touches one variable.
+
 ## Blog data model
 
 Supabase provisions **Postgres 17**. This matters: `VIRTUAL` generated columns are Postgres

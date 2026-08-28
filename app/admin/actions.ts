@@ -2,62 +2,61 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { supabaseServer, currentUser } from "@/lib/supabase/server";
-import { ADMIN_EMAIL } from "@/lib/supabase/config";
+import { requireDesk, passwordMatches, startSession, endSession, authConfigured } from "@/lib/auth";
+import { getStore } from "@/lib/store";
 import { slugify, toPlainText, readingTime } from "@/lib/posts";
 
-async function guard() {
-  const user = await currentUser();
-  if (!user || user.email !== ADMIN_EMAIL) throw new Error("not allowed");
-  const sb = await supabaseServer();
-  if (!sb) throw new Error("not configured");
-  return sb;
+export async function signIn(_prev: string | undefined, formData: FormData): Promise<string | undefined> {
+  if (!authConfigured()) return "ADMIN_PASSWORD and SESSION_SECRET are not set yet.";
+  const given = String(formData.get("password") ?? "");
+  if (!passwordMatches(given)) {
+    // no rate limiting here, so make a scripted guess cost something
+    await new Promise((r) => setTimeout(r, 400));
+    return "That is not the password.";
+  }
+  await startSession();
+  redirect("/admin");
+}
+
+export async function signOutAction() {
+  await endSession();
+  redirect("/admin/login");
 }
 
 export async function savePost(formData: FormData) {
-  const sb = await guard();
-  const id = String(formData.get("id") ?? "").trim();
+  await requireDesk();                       // the proxy does not cover Server Actions
+  const store = getStore();
+
+  const id = String(formData.get("id") ?? "").trim() || undefined;
   const title = String(formData.get("title") ?? "").trim() || "Untitled";
   const body_md = String(formData.get("body_md") ?? "");
-  const excerpt = String(formData.get("excerpt") ?? "").trim() || null;
-  const cover_url = String(formData.get("cover_url") ?? "").trim() || null;
-  const tags = String(formData.get("tags") ?? "").split(",").map((t) => t.trim()).filter(Boolean);
   const published = formData.get("published") === "on";
-
   const body_text = toPlainText(body_md);
-  const row = {
-    title, body_md, body_text, excerpt, cover_url, tags, published,
+
+  const saved = await store.upsert({
+    id,
+    title,
+    body_md,
+    body_text,
     slug: String(formData.get("slug") ?? "").trim() || slugify(title),
+    excerpt: String(formData.get("excerpt") ?? "").trim() || null,
+    cover_url: String(formData.get("cover_url") ?? "").trim() || null,
+    tags: String(formData.get("tags") ?? "").split(",").map((t) => t.trim()).filter(Boolean),
+    published,
     reading_time: readingTime(body_text),
-    published_at: published ? (String(formData.get("published_at") ?? "") || new Date().toISOString()) : null,
-  };
+    published_at: published ? String(formData.get("published_at") ?? "") || new Date().toISOString() : null,
+  });
 
-  if (id) {
-    const { error } = await sb.from("posts").update(row).eq("id", id);
-    if (error) throw new Error(error.message);
-  } else {
-    const { error } = await sb.from("posts").insert(row);
-    if (error) throw new Error(error.message);
-  }
-
-  // a newly published post has to appear straight away
   revalidatePath("/blog");
-  revalidatePath(`/blog/${row.slug}`);
+  revalidatePath(`/blog/${saved.slug}`);
   revalidatePath("/admin");
+  revalidatePath("/sitemap.xml");
   redirect("/admin");
 }
 
 export async function deletePost(formData: FormData) {
-  const sb = await guard();
-  const id = String(formData.get("id") ?? "");
-  const { error } = await sb.from("posts").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await requireDesk();
+  await getStore().remove(String(formData.get("id") ?? ""));
   revalidatePath("/blog");
   revalidatePath("/admin");
-}
-
-export async function signOut() {
-  const sb = await supabaseServer();
-  await sb?.auth.signOut();
-  redirect("/admin/login");
 }

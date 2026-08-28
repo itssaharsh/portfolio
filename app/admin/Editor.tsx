@@ -1,9 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase/client";
 import { savePost } from "./actions";
-import type { Post } from "@/lib/posts";
+import type { Post } from "@/lib/store/types";
 
 export default function Editor({ post }: { post?: Post }) {
   const [body, setBody] = useState(post?.body_md ?? "");
@@ -13,22 +12,19 @@ export default function Editor({ post }: { post?: Post }) {
 
   /** drop an image anywhere in the text and it uploads, then writes itself in at the cursor */
   async function upload(files: FileList | File[]) {
-    const sb = supabaseBrowser();
-    if (!sb) return;
     setUploading(true); setErr("");
     for (const file of Array.from(files)) {
       if (!file.type.startsWith("image/")) continue;
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await sb.storage.from("post-images").upload(path, file, { cacheControl: "31536000", upsert: false });
-      if (error) { setErr(error.message); break; }
-      const { data } = sb.storage.from("post-images").getPublicUrl(path);
-      const md = `\n\n![${file.name.replace(/\.[^.]+$/, "")}](${data.publicUrl})\n\n`;
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (!res.ok) { setErr(json.error ?? "That did not upload."); break; }
+      const md = `\n\n![${file.name.replace(/\.[^.]+$/, "")}](${json.url})\n\n`;
       const el = ta.current;
       if (el) {
         const at = el.selectionStart ?? body.length;
-        const next = body.slice(0, at) + md + body.slice(at);
-        setBody(next);
+        setBody(body.slice(0, at) + md + body.slice(at));
       } else setBody((b) => b + md);
     }
     setUploading(false);

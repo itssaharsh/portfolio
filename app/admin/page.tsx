@@ -1,27 +1,26 @@
 import Link from "next/link";
 import { listAll } from "@/lib/posts";
-import { currentUser } from "@/lib/supabase/server";
-import { ADMIN_EMAIL, isConfigured } from "@/lib/supabase/config";
-import { deletePost, signOut } from "./actions";
+import { signedIn } from "@/lib/auth";
+import { storeReady } from "@/lib/store";
+import { deletePost, signOutAction } from "./actions";
 
 export const metadata = { title: "Writing desk" };
 export const dynamic = "force-dynamic";
 
 export default async function Admin() {
-  if (!isConfigured) {
+  if (!storeReady()) {
     return (
       <main className="mx-auto max-w-[40rem] px-6 py-16">
         <h1 className="text-[1.5rem]">Not connected yet</h1>
-        <p className="mt-4 text-ink-2 text-[.92rem]">Add the Supabase keys and run <code>supabase/schema.sql</code>, then this becomes your writing desk.</p>
+        <p className="mt-4 text-ink-2 text-[.92rem]">Set <code>DATABASE_URL</code> and run <code>db/schema.sql</code>, then this becomes your writing desk.</p>
       </main>
     );
   }
-  const user = await currentUser();
-  if (!user || user.email !== ADMIN_EMAIL) {
+  if (!(await signedIn())) {
     return (
       <main className="mx-auto max-w-[40rem] px-6 py-16">
         <h1 className="text-[1.5rem]">Not you</h1>
-        <p className="mt-4 text-ink-2 text-[.92rem]">This desk belongs to one address. <Link href="/admin/login">Sign in</Link>.</p>
+        <p className="mt-4 text-ink-2 text-[.92rem]">This desk takes one password. <Link href="/admin/login">Sign in</Link>.</p>
       </main>
     );
   }
@@ -33,7 +32,7 @@ export default async function Admin() {
         <h1 className="text-[1.6rem]">Writing desk</h1>
         <div className="flex gap-3 items-center font-mono text-[11px] tracking-[.08em] uppercase">
           <Link href="/admin/new" className="bg-inkpanel text-chalk px-3 py-2 no-underline">write something</Link>
-          <form action={signOut}><button className="text-ink-2 underline">sign out</button></form>
+          <form action={signOutAction}><button className="text-ink-2 underline">sign out</button></form>
         </div>
       </div>
 

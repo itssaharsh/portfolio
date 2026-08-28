@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listPublished } from "@/lib/posts";
-import { isConfigured } from "@/lib/supabase/config";
+import { storeReady } from "@/lib/store";
 import { me } from "@/content/data";
 
 export const metadata: Metadata = { title: `Writing · ${me.name}` };
@@ -26,9 +26,9 @@ export default async function Blog({ searchParams }: { searchParams: Promise<{ q
         <button className="bg-inkpanel text-chalk font-mono text-[11px] tracking-[.1em] uppercase px-4">search</button>
       </form>
 
-      {!isConfigured ? (
+      {!storeReady() ? (
         <p className="mt-10 bg-chalk border border-[#C9C4B2] p-5 text-[.9rem] text-ink-2">
-          The writing is not wired up yet. Add the Supabase keys and the posts appear here.
+          The writing is not wired up yet. Set DATABASE_URL and the posts appear here.
         </p>
       ) : posts.length === 0 ? (
         <p className="mt-10 bg-chalk border border-[#C9C4B2] p-5 text-[.9rem] text-ink-2">

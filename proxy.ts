@@ -1,38 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { SUPABASE_URL, SUPABASE_ANON, isConfigured } from "@/lib/supabase/config";
+import { jwtVerify } from "jose";
 
 /**
- * The Supabase docs' updateSession helper redirects EVERY unauthenticated request to /login.
- * On a public portfolio that would 302 the homepage and the whole blog for every visitor.
- * So the matcher below covers /admin and /auth only, and the redirect is gated on /admin again.
+ * Covers /admin only. The Supabase example redirects every unauthenticated request to a login
+ * page, which on a public portfolio would send the homepage and the whole blog there too.
+ *
+ * This is a convenience, not the security boundary. Server Actions are POSTs to the page they
+ * live on and are not separate routes in this chain, so every action checks for itself.
  */
 export async function proxy(request: NextRequest) {
-  if (!isConfigured) return NextResponse.next({ request });
+  if (!request.nextUrl.pathname.startsWith("/admin")) return NextResponse.next();
+  if (request.nextUrl.pathname.startsWith("/admin/login")) return NextResponse.next();
 
-  let response = NextResponse.next({ request });
-
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON, {
-    cookies: {
-      getAll: () => request.cookies.getAll(),
-      setAll: (list) => {
-        list.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
-        list.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-      },
-    },
-  });
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user && request.nextUrl.pathname.startsWith("/admin")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
+  const token = request.cookies.get("desk")?.value;
+  const secret = process.env.SESSION_SECRET;
+  if (token && secret) {
+    try {
+      await jwtVerify(token, new TextEncoder().encode(secret), { algorithms: ["HS256"] });
+      return NextResponse.next();
+    } catch { /* fall through to the sign in page */ }
   }
-  return response;
+  const url = request.nextUrl.clone();
+  url.pathname = "/admin/login";
+  return NextResponse.redirect(url);
 }
 
-export const config = {
-  matcher: ["/admin/:path*", "/auth/:path*"],
-};
+export const config = { matcher: ["/admin/:path*"] };
