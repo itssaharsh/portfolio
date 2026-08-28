@@ -7,3 +7,7 @@ next-env.d.ts
 public/resume.aux
 public/resume.log
 public/resume.out
+
+# local agent tooling, not part of the site
+.claude/
+skills-lock.json
