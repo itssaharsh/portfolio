@@ -1,0 +1,146 @@
+% START GENAI@GHCOPILOT
+%-------------------------
+% Resume
+% Saharsh Tibrewala
+%-------------------------
+
+\documentclass[letterpaper,10.5pt]{article}
+
+\usepackage[left=0.5in, right=0.5in, top=0.3in, bottom=0.3in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fontenc}
+\usepackage{inputenc}
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+\hypersetup{colorlinks=false}
+\pagestyle{empty}
+\raggedbottom
+\raggedright
+
+% Section formatting
+\titleformat{\section}
+  {\vspace{-9pt}\scshape\raggedright\normalsize\bfseries}
+  {}{0em}{}
+  [\color{black}\titlerule\vspace{-8pt}]
+
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{#1}
+}
+
+\newcommand{\resumeSubheading}[2]{
+  \item[]
+    \textbf{#1} \hfill \small\textit{#2}
+}
+
+\newcommand{\resumeProject}[2]{
+  \item[]
+    \textbf{#1} \hfill \small\textit{#2}
+}
+
+\setlist[itemize]{leftmargin=*, nosep, topsep=0pt, parsep=0pt, partopsep=0pt}
+
+%-------------------------------------------
+\begin{document}
+\setlength{\parskip}{0pt}
+
+%---------- HEADING ----------
+\begin{center}
+ {\LARGE \textbf{Saharsh Tibrewala}} \\[1pt]
+ \footnotesize
+ \href{tel:+911234567890}{+91 95612 79506} $\mid$
+ \href{mailto:saharsh7002@gmail.com}{saharsh7002@gmail.com} $\mid$
+ \href{https://linkedin.com/in/saharsh-tibrewala}{LinkedIn} $\mid$
+ \href{https://github.com/itssaharsh}{GitHub} $\mid$
+ \href{https://leetcode.com/u/itssaharsh}{LeetCode} $\mid$
+ \href{https://codeforces.com/profile/itssah}{Codeforces} $\mid$
+ \href{https://www.codechef.com/users/itssaharsh}{CodeChef}
+\end{center}
+\vspace{-6pt}
+
+%---------- SUMMARY ----------
+\section{Summary}
+Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 10+ merged pull requests into OpenTelemetry (CNCF graduated) and pandas. Builds backend services and Bitcoin protocol tools in Go and Python. Seeking a Backend / AI Software Engineer Internship focused on distributed systems, developer tooling, and observability.
+
+%---------- TECHNICAL SKILLS ----------
+\section{Technical Skills}
+\begin{itemize}[leftmargin=0pt, label={}]
+  \small{
+    \item \textbf{Languages:} Go, Python, Java, C++, SQL, Shell Scripting
+    \item \textbf{Frameworks \& Libraries:} OpenTelemetry SDK, gRPC, REST APIs, Spring Boot (Beginner), Pandas, NumPy
+    \item \textbf{Tools \& Platforms:} Git, GitHub, GitHub Actions (CI/CD), Docker, Kubernetes, Linux, Bash, Cloud (OCI/AWS Basic)
+    \item \textbf{Concepts:} Data Structures \& Algorithms, OOP, Distributed Systems, Observability, Concurrency, Unit Testing, API Design, Bitcoin Protocol, NLP, ML Algorithms , AI concepts
+  }
+\end{itemize}
+
+%---------- EXPERIENCE ----------
+\section{Experience}
+\begin{itemize}
+  \resumeSubheading{Open Source Contributor --- Kubernetes SIGs, OpenTelemetry (CNCF), pandas, SeedSigner}{Go, Python}
+  \begin{itemize}
+    \resumeItem{Found and fixed a quadratic scan in \texttt{kubernetes-sigs/resource-state-metrics} metric generation --- a single pass over the resolved map dropped it 99\% and took allocations from 421 to 2 (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/102}{\#102}) --- and cached Starlark compilation behind \texttt{sync.Once} so scripts compile once per resolver rather than once per object, for a further 67\% (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/101}{\#101}). Both in review.}
+    \resumeItem{The \texttt{net/http} hooks in \texttt{otelc} run on every request, so swapping their map-based state for a typed struct and gating debug logging behind a level check cut hook latency 19\% and allocations from 27 to 21 per request (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1137}{\#1137}). A second skips the tool-file rewrite and \texttt{go mod tidy} when nothing changed, saving $\sim$16s per steady-state build (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1136}{\#1136}). Both in review.}
+    \resumeItem{In \texttt{opentelemetry-go}, replaced the two-pass \texttt{traceparent} decode with a generated reverse hex table that decodes and validates in one pass, taking 9--11\% off \texttt{Extract} (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8739}{\#8739}), and unrolled the trace and span ID hex decoders so the compiler can drop all 12 bounds checks, worth 33\% and 28\% at zero allocations (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8740}{\#8740}). Both in review.}
+    \resumeItem{Merged earlier: \texttt{Enabled()} guards across the OTLP-gRPC log, OTLP-HTTP trace, and Prometheus exporters, skipping attribute work when telemetry is off (\#7824, \#7881, \#7866); a 72-file \texttt{semconv} v1.37.0 to v1.39.0 migration (\#7789); histogram buckets generated from \texttt{weaver.yaml} (\#8015); tests for \texttt{Key.Emit()} and \texttt{Resource} merge behaviour (\#7751, \#7764); a Collector build fix (contrib \#46467) and an \texttt{assume\_current\_date} option for the stanza time parser (contrib \#46819).}
+    \resumeItem{Outside Go: added custom BIP-32 derivation paths and Taproot (P2TR) multisig address verification to the SeedSigner Address Explorer (\#916, \#927), and carried a \texttt{check\_array\_indexer} documentation fix through pandas maintainer review (\#62573).}
+  \end{itemize}
+\end{itemize}
+%---------- PROJECTS ----------
+\section{Projects}
+\begin{itemize}
+  \resumeProject{\href{https://github.com/itssaharsh/sherlock}{SherLock --- Bitcoin Chain-Analysis Toolkit}}{Go, REST API}
+  \begin{itemize}
+    \resumeItem{Parses raw Bitcoin Core block, undo, and XOR files, then applies heuristics (common-input-ownership, change detection, consolidation, CoinJoin) to produce JSON and Markdown intelligence reports via a CLI and web API.}
+  \end{itemize}
+  \resumeProject{\href{https://github.com/itssaharsh/coin-smith}{Coin-Smith --- BIP-174 PSBT Transaction Builder}}{Go, REST API}
+  \begin{itemize}
+    \resumeItem{Builds spec-compliant PSBTs with greedy coin selection, vbyte-based fee-target enforcement, dust-aware change creation, and RBF/locktime handling; exposes a CLI and \texttt{POST /api/build} REST endpoint.}
+  \end{itemize}
+  \resumeProject{\href{https://github.com/itssaharsh/Chain-lens}{Chain-Lens --- Bitcoin Block Analyzer}}{Go, REST API}
+  \begin{itemize}
+    \resumeItem{Computes transaction-level statistics (txid/wtxid, fee, vbytes, script classification) from raw block and undo files with XOR-key decoding; serves structured JSON through a REST API and web UI.}
+  \end{itemize}
+  \resumeProject{\href{https://github.com/itssaharsh/ed}{YouTube Shorts Pipeline --- Content Automation}}{Python, GitHub Actions}
+  \begin{itemize}
+    \resumeItem{Generates scripts via the Gemini API, sources footage via the Pexels API, and publishes through the YouTube Data API v3 (OAuth 2.0); runs on a GitHub Actions cron with credentials in GitHub Secrets.}
+  \end{itemize}
+\end{itemize}
+
+%---------- CERTIFICATIONS ----------
+\section{Certifications}
+\begin{itemize}
+  \resumeItem{\textbf{Oracle:} OCI Foundations Associate; OCI Generative AI Professional --- RAG, vector embeddings, model deployment. (2025)}
+  \resumeItem{\textbf{Anthropic:} AI Fluency --- Framework \& Foundations; Claude 101.}
+  \resumeItem{\textbf{Amazon Web Services (AWS):} AI Practitioner Challenge --- Udacity. (2026)}
+  \resumeItem{\textbf{Infosys Springboard:} Introduction to Artificial Intelligence; Introduction to Deep Learning; Introduction to Natural Language Processing. (2026)}
+\end{itemize}
+
+%---------- EDUCATION ----------
+\section{Education}
+\begin{itemize}
+  \resumeSubheading{VIT Pune --- B.Tech in Computer Science (AI)}{2025 -- Present}
+  \begin{itemize}
+    \resumeItem{Second Year --- Current GPA: 8.9 / 10}
+  \end{itemize}
+  \resumeSubheading{AECS 3, Tarapur --- CBSE Class XII (87\%)}{2025}
+\end{itemize}
+
+%---------- ACHIEVEMENTS ----------
+\section{Achievements \& Awards}
+\begin{itemize}
+  \resumeItem{\textbf{Linux Foundation LiFT Scholarship 2026 (Shubhra Kar):} Awarded a course and certification-exam scholarship by the Linux Foundation.}
+  \resumeItem{\textbf{Summer of Bitcoin 2025 --- Proposal Round:} Cleared 4 eliminatory rounds (screening, protocol bootcamp, open-source phase, proposal) from thousands of applicants.}
+  \resumeItem{\textbf{LFX Mentee Finalist (Linux Foundation):} Selected for a maintainer technical interview from a global applicant pool.}
+  \resumeItem{\textbf{Google Big Code 26:} Ranked top 15,000 nationally by clearing the Qualifying Round.}
+\end{itemize}
+
+%---------- COMPETITIVE PROGRAMMING ----------
+\section{Competitive Programming}
+\begin{itemize}
+  \resumeItem{Solved 350+ Data Structures \& Algorithms problems on LeetCode; CodeChef 3-Star (highest rating 1741); Codeforces Pupil (max rating 1295).}
+\end{itemize}
+
+\end{document}
+% END GENAI@GHCOPILOT

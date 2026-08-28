@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Mark and Sweep. Warm concrete ground, Bauhaus signage accents.
+   No gradients anywhere. No blur glow. No glass. No rounded cards.
+   Every ratio below was computed, not guessed. See 02_DESIGN_SPEC.md
+   --------------------------------------------------------------- */
+@theme {
+  --color-concrete: #ABA89A;
+  --color-concrete-2: #9E9C90;
+  --color-chalk: #EFEBDC;
+  --color-inkpanel: #1B1A15;
+  --color-ink: #16150F;
+  --color-ink-2: #3E3B31;     /* 4.69:1 on concrete */
+  --color-ink-3: #5F5B4E;
+  --color-ultra: #2A2BD6;     /* large text and non text only, 3.64:1 on concrete */
+  --color-ultra-deep: #1D1F96;/* small text on concrete, 5.21:1 */
+  --color-cad: #F2C300;
+  --color-rust: #A8341C;      /* 5.54:1 on chalk */
+  --color-moss: #2F6B3A;      /* 5.35:1 on chalk */
+  --color-hair: #8F8C7E;
+
+  --font-mono: "Go Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: "Archivo", system-ui, -apple-system, sans-serif;
+}
+
+:root { color-scheme: light; }
+
+* { box-sizing: border-box; min-width: 0; }
+
+body {
+  margin: 0;
+  background: var(--color-concrete);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.52;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+a { color: inherit; }
+
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ultra);
+  outline-offset: 3px;
+}
+
+/* the grain is generated in the browser, not downloaded */
+#grain {
+  position: fixed; inset: 0; z-index: 6; pointer-events: none;
+  mix-blend-mode: soft-light; opacity: 0.34;
+  background-repeat: repeat; background-size: 128px 128px;
+}
+
+/* the heap sits behind the content and never eats a click */
+#heap { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+
+main { position: relative; z-index: 5; }
+
+/* Everything below is authored in its FINISHED state.
+   With no JavaScript the page is complete; only the floor stays empty. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
