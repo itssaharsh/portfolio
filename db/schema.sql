@@ -22,13 +22,19 @@ create table if not exists posts (
 -- Search. Title counts most, then the one line summary, then tags, then the body.
 -- STORED rather than VIRTUAL, because generated columns are only virtual in Postgres 18 and later
 -- and both of these run 17.
+-- array_to_string is STABLE, not IMMUTABLE, and a generated column will not accept it.
+-- This wrapper is the standard way round that.
+create or replace function tags_to_text(text[]) returns text
+  language sql immutable strict parallel safe
+  as $$ select array_to_string($1, ' ') $$;
+
 alter table posts drop column if exists fts;
 alter table posts add column fts tsvector
   generated always as (
-    setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
-    setweight(to_tsvector('english', coalesce(excerpt, '')), 'B') ||
-    setweight(to_tsvector('english', array_to_string(tags, ' ')), 'C') ||
-    setweight(to_tsvector('english', coalesce(body_text, '')), 'D')
+    setweight(to_tsvector('english'::regconfig, coalesce(title, '')), 'A') ||
+    setweight(to_tsvector('english'::regconfig, coalesce(excerpt, '')), 'B') ||
+    setweight(to_tsvector('english'::regconfig, tags_to_text(tags)), 'C') ||
+    setweight(to_tsvector('english'::regconfig, coalesce(body_text, '')), 'D')
   ) stored;
 
 create index if not exists posts_fts_idx  on posts using gin (fts);

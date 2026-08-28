@@ -53,10 +53,13 @@ npm run build && npm start
    Pooled is right here because this app opens many short lived connections. Direct is for schema
    migrations and long lived connections, which is not what this does.
 
-4. Open **SQL Editor** in the Neon console, paste the whole of **`db/schema.sql`**, and press Run.
-   Multi statement scripts are supported there, so the whole file goes in at once.
-5. Optionally paste **`db/seed.sql`** and run it. That puts the OpenTelemetry post in as a
-   **draft**. Nothing is public until you publish it.
+4. Open **SQL Editor** in the Neon console. It is in the left sidebar under your project, below
+   Tables. Paste the whole of **`db/schema.sql`** and press Run. Multi statement scripts work
+   there, so the whole file goes in at once.
+5. Paste **`db/seed.sql`** and run that too. It publishes the first post.
+
+**Already done for the current database.** The schema is applied and the post is live, verified by
+querying it back. You only need this section again if you ever start a fresh Neon project.
 
 Free forever: 0.5 GB and 100 compute hours a month, from Neon's own pricing page. The database
 sleeps after five minutes of no traffic, so the first visitor after a quiet spell waits about a
