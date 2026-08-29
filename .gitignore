@@ -11,3 +11,7 @@ public/resume.out
 # local agent tooling, not part of the site
 .claude/
 skills-lock.json
+.vercel
+.env
+.env.local
+.env.*.local
