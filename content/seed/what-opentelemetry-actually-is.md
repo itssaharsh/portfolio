@@ -14,7 +14,7 @@ Software has exactly this problem, and it is worse, because a single click on a 
 
 When a page is slow, the honest answer is usually nobody knows why. Not because the engineers are careless, but because each of those thirty programs only sees its own small part. Each one thinks it did fine. The program that took eleven seconds does not know it was the one holding everyone else up, and the program that got blamed was just waiting.
 
-You end up with thirty teams all looking at their own dashboard, all of which say green.
+You end up with four teams all looking at their own dashboard, all of which say green.
 
 ## What OpenTelemetry is
 
@@ -54,9 +54,9 @@ There is also the smaller and more honest reason, which is that I like this kind
 
 ## If you want to look
 
-Both of the changes above are open on GitHub right now, being reviewed by the people who maintain the project. They may well come back and tell me I have missed something, which happens, and which is most of how I have learned anything.
+Both of the changes above have since been merged, on 7 and 21 September 2026, after review by the people who maintain the project. Review is where I get told what I have missed, which happens, and which is most of how I have learned anything.
 
 - [Reading the label in one pass](https://github.com/open-telemetry/opentelemetry-go/pull/8739)
 - [Letting the compiler drop the checks](https://github.com/open-telemetry/opentelemetry-go/pull/8740)
 
-The numbers in both are from ten runs each, and the command to reproduce them is in the description. Do not take my word for any of it.
+The numbers in both are from twelve runs each, and the command to reproduce them is in the description. Do not take my word for any of it.

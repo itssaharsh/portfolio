@@ -12,49 +12,85 @@
   --color-inkpanel: #1B1A15;
   --color-ink: #16150F;
   --color-ink-2: #3E3B31;     /* 4.69:1 on concrete */
-  --color-ink-3: #5F5B4E;
+  --color-ink-3: #5F5B4E;     /* 5.69:1 on chalk. 2.85:1 on concrete, so chalk only */
   --color-ultra: #2A2BD6;     /* large text and non text only, 3.64:1 on concrete */
   --color-ultra-deep: #1D1F96;/* small text on concrete, 5.21:1 */
   --color-cad: #F2C300;
   --color-rust: #A8341C;      /* 5.54:1 on chalk */
-  --color-moss: #2F6B3A;      /* 5.35:1 on chalk */
+  --color-moss: #2F6B3A;      /* 5.35:1 on chalk. 2.68:1 on concrete, so chalk only */
   --color-hair: #8F8C7E;
 
   --font-mono: "Go Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-sans: "Archivo", system-ui, -apple-system, sans-serif;
 }
 
-:root { color-scheme: light; }
+/* Element defaults sit in the base layer on purpose. Anything written outside a layer beats
+   every Tailwind utility, which used to cancel each margin, tracking and colour class put on
+   a heading or a link. The resume download button was dark text on a dark button because of it. */
+@layer base {
+  :root { color-scheme: light; }
 
-* { box-sizing: border-box; min-width: 0; }
+  * { box-sizing: border-box; min-width: 0; }
 
-body {
-  margin: 0;
-  background: var(--color-concrete);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  font-size: 17px;
-  line-height: 1.52;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  font-variant-numeric: tabular-nums;
-  overflow-x: hidden;
+  /* The bar at the top of the homepage is fixed and 34px tall. Without this, anything the
+     browser scrolls into view, the skip link's target or a link reached with shift and tab,
+     can stop underneath it. */
+  html { scroll-padding-top: 2.5rem; }
+
+  body {
+    margin: 0;
+    background: var(--color-concrete);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.52;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.06;
+    text-wrap: balance;
+    /* a long name in a title must break rather than run off a phone, where the page cannot scroll sideways */
+    overflow-wrap: break-word;
+  }
+
+  a { color: inherit; }
+
+  :where(a, button, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ultra);
+    outline-offset: 3px;
+  }
 }
 
-h1, h2, h3 {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-weight: 400;
-  letter-spacing: -0.03em;
-  line-height: 1.06;
-  text-wrap: balance;
+/* Off the top of the screen until the keyboard reaches it. Written out by hand because the
+   utility that reveals a screen reader only element also strips its padding. */
+.skip-link {
+  position: fixed; left: .75rem; top: 2.75rem; z-index: 20; transform: translateY(-500%);
+  background: var(--color-inkpanel); color: var(--color-chalk); padding: .55rem .8rem;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
 }
+.skip-link:focus { transform: none; }
+/* a fixed element is repeated on every printed sheet, and this one landed on top of the text */
+@media print { .skip-link { display: none; } }
 
-a { color: inherit; }
-
-:where(a, button, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-ultra);
-  outline-offset: 3px;
+/* The notes about the blocks only make sense where there are blocks. With reduced motion there
+   are none. On a touch screen there are fewer, nothing can be pushed, and there is no g to press,
+   so that reader gets a different sentence. With no JavaScript there are none either. The same
+   class sits on the gauge and the gravity buttons in the bar, which would otherwise read
+   "421 live" over an empty floor. */
+.heap-note-touch { display: none; }
+@media (prefers-reduced-motion: reduce) { .heap-note { display: none !important; } }
+@media (scripting: none) { .heap-note { display: none !important; } }
+@media (pointer: coarse) {
+  .heap-note-mouse { display: none !important; }
+  .heap-note-touch { display: inline; }
 }
 
 /* the grain is generated in the browser, not downloaded */
@@ -68,6 +104,61 @@ a { color: inherit; }
 #heap { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
 
 main { position: relative; z-index: 5; }
+
+/* ---------------------------------------------------------------
+   A post. Everything the writing desk or the post command can
+   produce lands in here, so plain text in means a finished page out.
+   --------------------------------------------------------------- */
+@layer components {
+  .post-body { font-size: 1.06rem; line-height: 1.7; color: var(--color-ink); overflow-wrap: break-word; }
+  .post-body > * { max-width: 66ch; }
+  .post-body > * + * { margin-top: 1.25rem; }
+  /* the opening paragraph is set a size up, so even a post with no summary has a way in */
+  .post-body > p:first-child { font-size: 1.2rem; line-height: 1.55; }
+
+  .post-body h2 { font-size: 1.32rem; line-height: 1.15; margin-top: 3rem; padding-top: 1.1rem; border-top: 1px solid var(--color-hair); }
+  .post-body h3 { font-size: 1.08rem; line-height: 1.2; margin-top: 2.2rem; }
+  .post-body h4, .post-body h5, .post-body h6 { font-family: var(--font-mono); font-weight: 700; font-size: .92rem; line-height: 1.3; letter-spacing: -.01em; margin-top: 1.8rem; }
+  .post-body h2 + *, .post-body h3 + *, .post-body h4 + * { margin-top: .85rem; }
+  /* the page already draws a rule above the post, so a post that opens with a heading must not draw a second */
+  .post-body > :first-child { margin-top: 0; }
+  .post-body > h2:first-child { border-top: 0; padding-top: 0; }
+
+  /* the reset removes every underline, and colour alone does not mark a link inside a sentence */
+  .post-body a { color: var(--color-ultra-deep); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .post-body strong { font-weight: 650; }
+  /* The body face is loaded upright only and the browser is told not to fake a slant, so
+     emphasis in a post was invisible. This is the real italic, fetched only by a page that has some. */
+  .post-body em, .post-body i, .post-body cite { font-family: var(--font-archivo-italic), var(--font-sans); font-style: italic; }
+
+  /* the reset takes every list marker away, and a list with none reads as stray lines */
+  .post-body ul, .post-body ol { padding-left: 1.35rem; }
+  .post-body ul { list-style: square; }
+  .post-body ol { list-style: decimal; }
+  .post-body li + li { margin-top: .45rem; }
+  .post-body li::marker { color: var(--color-ink-2); font-family: var(--font-mono); font-size: .86em; }
+
+  .post-body blockquote { margin-left: 0; margin-right: 0; padding: .9rem 1.1rem; background: var(--color-chalk); border: 1px solid #C9C4B2; color: var(--color-ink-2); }
+  .post-body blockquote > * + * { margin-top: .7rem; }
+
+  .post-body pre { max-width: none; background: var(--color-inkpanel); color: #D8D3C2; padding: 1rem 1.1rem; overflow-x: auto;
+    font-family: var(--font-mono); font-size: 12.5px; line-height: 19px; }
+  .post-body code { font-family: var(--font-mono); font-size: .9em; }
+  .post-body :not(pre) > code { background: var(--color-chalk); padding: .1rem .32rem; }
+
+  .post-body img { max-width: 100%; height: auto; display: block; border: 1px solid var(--color-hair); }
+  .post-body p:has(> img:only-child) { max-width: none; }
+  .post-body figure { max-width: none; margin-left: 0; margin-right: 0; }
+  .post-body figcaption { margin-top: .5rem; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--color-ink-2); }
+
+  .post-body hr { border: 0; height: 1px; background: var(--color-hair); margin-top: 2.6rem; margin-bottom: 2.6rem; }
+
+  .post-body table { max-width: none; width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: .82rem; display: block; overflow-x: auto; }
+  .post-body th, .post-body td { border-bottom: 1px solid var(--color-hair); padding: .45rem .7rem; vertical-align: top; }
+  /* a column of numbers can be lined up on the right, the way markdown tables ask for it */
+  .post-body th:not([align]), .post-body td:not([align]) { text-align: left; }
+  .post-body th { font-weight: 700; }
+}
 
 /* Everything below is authored in its FINISHED state.
    With no JavaScript the page is complete; only the floor stays empty. */

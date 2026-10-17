@@ -11,6 +11,12 @@ public/resume.out
 # local agent tooling, not part of the site
 .claude/
 skills-lock.json
+graphify-out/
+
+# what `npm run post` replaced, kept so an update can be undone
+.post-backups/
+# text handed over in a chat and saved before posting. the posts themselves live in the database.
+drafts/
 .vercel
 .env
 .env.local

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { listPublished } from "@/lib/posts";
+import { siteBase } from "@/lib/site";
 
-const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://saharsh.vercel.app";
+const base = siteBase();
 
 /** refreshed hourly, so a post published after a deploy still gets listed */
 export const revalidate = 3600;

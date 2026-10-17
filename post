@@ -1,0 +1,7 @@
+#!/bin/sh
+# ./post notes.txt            publish a plain text file as a post on the site
+# ./post notes.txt --draft    or --dry-run, --tags "a, b" and the rest. ./post --help lists them.
+#
+# The same thing as `npm run post`, without npm in the way: npm keeps any flag typed before a
+# double dash for itself, and this passes every one of them straight through.
+exec node "$(dirname "$0")/scripts/post.mjs" "$@"

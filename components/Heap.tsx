@@ -11,13 +11,14 @@ const GV: Record<Dir, { x: number; y: number }> = {
 const PAL = ["#8E8B7D", "#BFBCAC", "#7C7A6D", "#C9C5B4"];
 
 /**
- * The floor of this site is one commit. 421 blocks, the exact number of allocations
- * removed in kubernetes-sigs/resource-state-metrics pull request 102, down to 2.
+ * The floor of this site is one change. 421 blocks, the exact number of allocations a single
+ * run used to make before kubernetes-sigs/resource-state-metrics pull request 102 brought it
+ * down to 2.
  *
  * Everything here runs after first paint and nothing on the page depends on it.
  * matter-js is imported inside the effect so it lands in its own chunk.
  */
-export default function Heap() {
+export default function Heap({ children }: { children?: React.ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [live, setLive] = useState<number>(HEAP.before);
   const [dir, setDir] = useState<Dir>("down");
@@ -157,12 +158,14 @@ export default function Heap() {
         };
         const onLeave = () => { pointerIn = false; if (pusher) M.Body.setPosition(pusher, { x: -500, y: -500 }); };
         const onKey = (e: KeyboardEvent) => {
+          // a shortcut that belongs to the browser is not ours to answer
+          if (e.ctrlKey || e.metaKey || e.altKey) return;
           const t = e.target as HTMLElement | null;
-          if (t && t.closest("input,textarea,[contenteditable]")) return;
+          if (t && t.closest("input,textarea,select,[contenteditable]")) return;
           if (e.key === "g" || e.key === "G") collect();
           if (e.key === "r" || e.key === "R") allocate();
-          const k = ({ ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" } as const)[e.key as never];
-          if (k) { e.preventDefault(); setDir(k); gravity(k); }
+          // The arrow keys are left to the browser. They used to turn gravity, which meant the
+          // page could not be scrolled from the keyboard. The four buttons in the bar do that job.
         };
         addEventListener("pointermove", onMove, { passive: true });
         addEventListener("pointerdown", onDown);
@@ -181,11 +184,16 @@ export default function Heap() {
       off.push(() => removeEventListener("resize", onResize));
 
       let running = true;
-      const onVis = () => { running = !document.hidden; if (running) requestAnimationFrame(loop); };
+      let frame = 0;
+      // Only ever one frame in flight. Asking for a new one on every return to the tab used to
+      // stack a second loop on the first, then a third, and the blocks ran that many times too fast.
+      const kick = () => { if (!frame) frame = requestAnimationFrame(loop); };
+      const onVis = () => { running = !document.hidden; if (running) kick(); };
       document.addEventListener("visibilitychange", onVis);
       off.push(() => document.removeEventListener("visibilitychange", onVis));
 
       function loop(t: number) {
+        frame = 0;
         if (stop || !running) return;
         for (const b of blocks) if (b.isStatic && b.__delay && t > b.__delay) { M.Body.setStatic(b, false); b.__delay = 0; }
         if (pusher && pointerIn && px.length) {
@@ -200,7 +208,7 @@ export default function Heap() {
           M.Sleeping.set(b, false);
           M.Body.applyForce(b, b.position, { x: (Math.random() - 0.5) * 4e-6, y: -1.2e-6 });
         }
-        M.Engine.update(eng, 16.667);
+        M.Engine.update(eng, 1000 / 60); // 16.667 is a hair over what the library allows, and it says so in the console
         ctx.clearRect(0, 0, W, H);
         for (const b of blocks) {
           if (b.position.y > H + 80 || b.position.y < -1200) continue;
@@ -214,13 +222,13 @@ export default function Heap() {
           ctx.restore();
         }
         ctx.globalAlpha = 1;
-        requestAnimationFrame(loop);
+        kick();
       }
 
       sizeCanvas();
       allocate();
       setReady(true);
-      requestAnimationFrame(loop);
+      kick();
     })();
 
     return () => { stop = true; off.forEach((f) => f()); };
@@ -230,21 +238,25 @@ export default function Heap() {
     <>
       <canvas id="heap" ref={canvasRef} aria-hidden="true" />
       <div className="fixed top-0 inset-x-0 z-8 flex items-center gap-3 px-3 h-[34px] border-b border-[#8F8C7E] bg-[rgba(171,168,154,.86)] backdrop-blur-[6px]">
-        <span className="grid place-items-center size-[22px] shrink-0 rounded-full bg-inkpanel text-cad font-mono text-[9px] leading-none">ST</span>
-        <span className="font-mono text-[11px] tracking-[.08em] uppercase text-ink-2 whitespace-nowrap">heap</span>
-        <span className="flex-1 h-[9px] bg-[#8F8C7E] relative overflow-hidden">
+        <a href="#top" aria-label="ST, Saharsh Tibrewala, back to the top"
+           className="grid place-items-center size-[22px] shrink-0 rounded-full bg-inkpanel text-cad font-mono text-[9px] leading-none no-underline">ST</a>
+        {/* the section links arrive from the server, so they are in the page before any of this runs */}
+        {children}
+        {/* the gauge is an instrument at the edge of the bar, not a banner across it */}
+        <span className="heap-note ml-auto shrink-0 font-mono text-[11px] tracking-[.08em] uppercase text-ink-2 whitespace-nowrap">heap</span>
+        <span className="heap-note w-[clamp(3.5rem,16vw,15rem)] h-[9px] bg-[#8F8C7E] relative overflow-hidden">
           <i className="absolute inset-y-0 left-0 bg-ultra transition-[width] duration-300"
              style={{ width: `${(live / HEAP.before) * 100}%` }} />
         </span>
-        <span className="font-mono text-[11px] tracking-[.08em] uppercase text-ink-2 whitespace-nowrap">{live} live</span>
-        <span className="flex gap-[2px] shrink-0" role="group" aria-label="Gravity direction">
+        <span className="heap-note shrink-0 font-mono text-[11px] tracking-[.08em] uppercase text-ink-2 whitespace-nowrap">{live} live</span>
+        <span className="heap-note flex gap-[2px] shrink-0" role="group" aria-label="Gravity direction">
           {(["up", "down", "left", "right"] as Dir[]).map((d) => (
             <button key={d} type="button"
               aria-pressed={dir === d}
               title={`Gravity ${d}`}
               disabled={!ready}
               onClick={() => { setDir(d); api.current?.gravity(d); }}
-              className="size-5 grid place-items-center border border-[#8F8C7E] bg-chalk text-ink font-mono text-[10px] leading-none cursor-pointer disabled:opacity-40 aria-pressed:bg-inkpanel aria-pressed:text-cad aria-pressed:border-inkpanel">
+              className="size-6 grid place-items-center border border-[#8F8C7E] bg-chalk text-ink font-mono text-[10px] leading-none cursor-pointer disabled:opacity-40 aria-pressed:bg-inkpanel aria-pressed:text-cad aria-pressed:border-inkpanel">
               {{ up: "↑", down: "↓", left: "←", right: "→" }[d]}
             </button>
           ))}

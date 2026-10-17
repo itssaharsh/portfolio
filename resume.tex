@@ -50,7 +50,7 @@
 \begin{center}
  {\LARGE \textbf{Saharsh Tibrewala}} \\[1pt]
  \footnotesize
- \href{tel:+911234567890}{+91 95612 79506} $\mid$
+ \href{tel:+919561279506}{+91 95612 79506} $\mid$
  \href{mailto:saharsh7002@gmail.com}{saharsh7002@gmail.com} $\mid$
  \href{https://linkedin.com/in/saharsh-tibrewala}{LinkedIn} $\mid$
  \href{https://github.com/itssaharsh}{GitHub} $\mid$
@@ -62,16 +62,16 @@
 
 %---------- SUMMARY ----------
 \section{Summary}
-Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 11 merged pull requests into OpenTelemetry (CNCF graduated) and pandas, and 10 more under review. Builds backend services and Bitcoin protocol tools in Go and Python. Seeking a Backend / AI Software Engineer Internship focused on distributed systems, developer tooling, and observability.
+Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 16 merged pull requests into OpenTelemetry (CNCF graduated), Kubernetes SIGs and pandas, and 6 more open. Builds backend services and Bitcoin protocol tools in Go and Python. Seeking a Backend / AI Software Engineer Internship focused on distributed systems, developer tooling, and observability.
 
 %---------- TECHNICAL SKILLS ----------
 \section{Technical Skills}
 \begin{itemize}[leftmargin=0pt, label={}]
   \small{
     \item \textbf{Languages:} Go, Python, Java, C++, SQL, Shell Scripting
-    \item \textbf{Frameworks \& Libraries:} OpenTelemetry SDK, gRPC, REST APIs, Spring Boot (Beginner), Pandas, NumPy
+    \item \textbf{Frameworks \& Libraries:} OpenTelemetry SDK, gRPC, REST APIs, Spring Boot (Beginner), pandas, NumPy
     \item \textbf{Tools \& Platforms:} Git, GitHub, GitHub Actions (CI/CD), Docker, Kubernetes, Linux, Bash, Cloud (OCI/AWS Basic)
-    \item \textbf{Concepts:} Data Structures \& Algorithms, OOP, Distributed Systems, Observability, Concurrency, Unit Testing, API Design, Bitcoin Protocol, NLP, ML Algorithms , AI concepts
+    \item \textbf{Concepts:} Data Structures \& Algorithms, OOP, Distributed Systems, Observability, Concurrency, Unit Testing, API Design, Bitcoin Protocol, NLP, ML Algorithms, AI Concepts
   }
 \end{itemize}
 
@@ -80,31 +80,31 @@ Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 11 merge
 \begin{itemize}
   \resumeSubheading{Open Source Contributor --- Kubernetes SIGs, OpenTelemetry (CNCF), pandas, SeedSigner}{Go, Python}
   \begin{itemize}
-    \resumeItem{Found and fixed a quadratic scan in \texttt{kubernetes-sigs/resource-state-metrics} metric generation --- a single pass over the resolved map dropped it 99\% and took allocations from 421 to 2 (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/102}{\#102}) --- and cached Starlark compilation behind \texttt{sync.Once} so scripts compile once per resolver rather than once per object, for a further 67\% (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/101}{\#101}). Both in review.}
-    \resumeItem{The \texttt{net/http} hooks in \texttt{otelc} run on every request, so swapping their map-based state for a typed struct and gating debug logging behind a level check cut hook latency 19\% and allocations from 27 to 21 per request (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1137}{\#1137}). A second skips the tool-file rewrite and \texttt{go mod tidy} when nothing changed, saving $\sim$16s per steady-state build (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1136}{\#1136}). Both in review.}
-    \resumeItem{In \texttt{opentelemetry-go}, replaced the two-pass \texttt{traceparent} decode with a generated reverse hex table that decodes and validates in one pass, taking 9--11\% off \texttt{Extract} (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8739}{\#8739}), and unrolled the trace and span ID hex decoders so the compiler can drop all 12 bounds checks, worth 33\% and 28\% at zero allocations (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8740}{\#8740}). Both in review.}
-    \resumeItem{Merged earlier: \texttt{Enabled()} guards across the OTLP-gRPC, OTLP-HTTP, and Prometheus exporters, skipping attribute work when telemetry is off (\#7824, \#7825, \#7881, \#7866); a 72-file \texttt{semconv} v1.37.0 to v1.39.0 migration (\#7789); histogram buckets generated from \texttt{weaver.yaml} (\#8015); tests for \texttt{Key.Emit()} and \texttt{Resource} merge (\#7751, \#7764); a spec overview update (\#5112); and a Collector build fix (contrib \#46467).}
+    \resumeItem{Found and fixed a quadratic scan in \texttt{kubernetes-sigs/resource-state-metrics} metric generation. A single pass over the resolved map cut its running time 99\% and took allocations from 421 to 2 (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/102}{\#102}, merged). Also cached Starlark compilation behind \texttt{sync.Once} so scripts compile once per resolver rather than once per object, for 67\% less time there (\href{https://github.com/kubernetes-sigs/resource-state-metrics/pull/101}{\#101}, open).}
+    \resumeItem{The \texttt{net/http} hooks in \texttt{otelc} run on every request, so swapping their map-based state for a typed struct and gating debug logging behind a level check cut hook latency 12\% incoming and 6\% outgoing (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1137}{\#1137}). A second pull request skips the tool-file rewrite and \texttt{go mod tidy} when nothing changed, saving $\sim$1s a build, $\sim$16s on a cold cache (\href{https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/pull/1136}{\#1136}). Both merged.}
+    \resumeItem{In \texttt{opentelemetry-go}, replaced the two-pass \texttt{traceparent} decode with a reverse hex table that decodes and validates in one pass, taking 9\% and 11\% off \texttt{Extract} (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8739}{\#8739}), and unrolled the trace and span ID hex decoders so the compiler can drop all 12 bounds checks, worth 33\% and 28\% at zero allocations (\href{https://github.com/open-telemetry/opentelemetry-go/pull/8740}{\#8740}). Both merged.}
+    \resumeItem{Merged earlier: \texttt{Enabled()} guards across the OTLP-gRPC, OTLP-HTTP, and Prometheus exporters, skipping attribute work when telemetry is off (\#7824, \#7825, \#7881, \#7866); a 65-file \texttt{semconv} v1.37.0 to v1.39.0 migration (\#7789); histogram buckets generated from \texttt{weaver.yaml} (\#8015); tests for \texttt{Key.Emit()} and \texttt{Resource} merge (\#7751, \#7764); a spec overview update (\#5112); and a Collector build fix (contrib \#46467).}
     \resumeItem{Outside Go: merged a \texttt{check\_array\_indexer} documentation fix into pandas (\#62573). Open in SeedSigner: custom BIP-32 derivation paths and Taproot (P2TR) multisig verification for the Address Explorer (\#916, \#927).}
   \end{itemize}
 \end{itemize}
 %---------- PROJECTS ----------
 \section{Projects}
 \begin{itemize}
-  \resumeProject{\href{https://github.com/itssaharsh/sherlock}{SherLock --- Bitcoin Chain-Analysis Toolkit}}{Go, REST API}
+  \resumeProject{\href{https://github.com/itssaharsh/sherlock}{Sherlock --- Bitcoin Chain-Analysis Toolkit}}{Go, REST API}
   \begin{itemize}
     \resumeItem{Parses raw Bitcoin Core block, undo, and XOR files, then applies heuristics (common-input-ownership, change detection, consolidation, CoinJoin) to produce JSON and Markdown intelligence reports via a CLI and web API.}
   \end{itemize}
-  \resumeProject{\href{https://github.com/itssaharsh/coin-smith}{Coin-Smith --- BIP-174 PSBT Transaction Builder}}{Go, REST API}
+  \resumeProject{\href{https://github.com/itssaharsh/coin-smith}{Coin Smith --- BIP-174 PSBT Transaction Builder}}{Go, REST API}
   \begin{itemize}
     \resumeItem{Builds spec-compliant PSBTs with greedy coin selection, vbyte-based fee-target enforcement, dust-aware change creation, and RBF/locktime handling; exposes a CLI and \texttt{POST /api/build} REST endpoint.}
   \end{itemize}
-  \resumeProject{\href{https://github.com/itssaharsh/Chain-lens}{Chain-Lens --- Bitcoin Block Analyzer}}{Go, REST API}
+  \resumeProject{\href{https://github.com/itssaharsh/Chain-lens}{Chain Lens --- Bitcoin Block Analyzer}}{Go, REST API}
   \begin{itemize}
     \resumeItem{Computes transaction-level statistics (txid/wtxid, fee, vbytes, script classification) from raw block and undo files with XOR-key decoding; serves structured JSON through a REST API and web UI.}
   \end{itemize}
   \resumeProject{\href{https://github.com/itssaharsh/ed}{YouTube Shorts Pipeline --- Content Automation}}{Python, GitHub Actions}
   \begin{itemize}
-    \resumeItem{Generates scripts via the Gemini API, sources footage via the Pexels API, and publishes through the YouTube Data API v3 (OAuth 2.0); runs on a GitHub Actions cron with credentials in GitHub Secrets.}
+    \resumeItem{Writes and ranks jokes via the Gemini API, generates speech and every frame, gates on a quality check, and uploads via the YouTube Data API v3 (OAuth 2.0); runs from GitHub Actions.}
   \end{itemize}
 \end{itemize}
 
@@ -112,7 +112,7 @@ Second-year Computer Science (AI) student at VIT Pune (GPA 8.9/10) with 11 merge
 \section{Certifications}
 \begin{itemize}
   \resumeItem{\textbf{Oracle:} OCI Foundations Associate; OCI Generative AI Professional --- RAG, vector embeddings, model deployment. (2025)}
-  \resumeItem{\textbf{Anthropic:} AI Fluency --- Framework \& Foundations; Claude 101.}
+  \resumeItem{\textbf{Anthropic:} AI Fluency --- Framework \& Foundations; Claude 101. (2026)}
   \resumeItem{\textbf{Amazon Web Services (AWS):} AI Practitioner Challenge --- Udacity. (2026)}
   \resumeItem{\textbf{Infosys Springboard:} Introduction to Artificial Intelligence; Introduction to Deep Learning; Introduction to Natural Language Processing. (2026)}
 \end{itemize}

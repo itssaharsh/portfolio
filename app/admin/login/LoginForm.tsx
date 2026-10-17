@@ -16,7 +16,7 @@ export default function LoginForm() {
         className="mt-3 bg-inkpanel text-chalk font-mono text-[11px] tracking-[.1em] uppercase px-4 py-2 disabled:opacity-50">
         {pending ? "checking" : "sign in"}
       </button>
-      {error && <p className="mt-3 text-[.85rem] text-rust">{error}</p>}
+      {error && <p className="mt-3 text-[.85rem] text-ink font-bold">{error}</p>}
     </form>
   );
 }

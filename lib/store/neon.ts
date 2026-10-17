@@ -21,6 +21,15 @@ const q = () => {
 const COLS = `id, slug, title, excerpt, body_md, body_text, cover_url, tags, published,
   reading_time, created_at, updated_at, published_at`;
 
+/* The driver hands dates back as Date objects, and the Post type says they are text. The
+   writing desk put one straight into a hidden form field, where it became "Fri Aug 28 2026
+   21:22:05 GMT+0000 (Coordinated Universal Time)", which Postgres refuses, so saving any post
+   that was already published threw. Every row leaves here with its dates as ISO text. */
+const iso = (v: unknown) => (v == null ? null : new Date(v as string | Date).toISOString());
+const post = (r: Record<string, unknown>) =>
+  ({ ...r, created_at: iso(r.created_at), updated_at: iso(r.updated_at), published_at: iso(r.published_at) }) as unknown as Post;
+const posts = (rows: Record<string, unknown>[]) => rows.map(post);
+
 export const neonStore: PostStore = {
   name: "neon",
   ready: Boolean(url),
@@ -34,25 +43,25 @@ export const neonStore: PostStore = {
                    published_at desc nulls last`
       : await s`select ${s.unsafe(COLS)} from posts
           where published = true order by published_at desc nulls last`;
-    return rows as unknown as Post[];
+    return posts(rows);
   },
 
   async getBySlug(slug) {
     const s = q();
     const rows = await s`select ${s.unsafe(COLS)} from posts where slug = ${slug} and published = true limit 1`;
-    return (rows[0] as unknown as Post) ?? null;
+    return rows[0] ? post(rows[0]) : null;
   },
 
   async listAll() {
     const s = q();
     const rows = await s`select ${s.unsafe(COLS)} from posts order by updated_at desc`;
-    return rows as unknown as Post[];
+    return posts(rows);
   },
 
   async getById(id) {
     const s = q();
     const rows = await s`select ${s.unsafe(COLS)} from posts where id = ${id} limit 1`;
-    return (rows[0] as unknown as Post) ?? null;
+    return rows[0] ? post(rows[0]) : null;
   },
 
   async upsert(input: PostInput) {
@@ -72,7 +81,7 @@ export const neonStore: PostStore = {
              ${p.tags}, ${p.published}, ${p.reading_time}, ${p.published_at})
           returning ${s.unsafe(COLS)}`;
     if (!rows[0]) throw new Error("The post did not save.");
-    return rows[0] as unknown as Post;
+    return post(rows[0]);
   },
 
   async remove(id) {

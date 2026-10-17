@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default function Login() {
   return (
-    <main className="mx-auto max-w-[30rem] px-6 py-[clamp(3rem,10vw,7rem)]">
+    <main id="main" className="mx-auto max-w-[30rem] px-6 py-[clamp(3rem,10vw,7rem)]">
       <h1 className="text-[1.6rem]">Sign in</h1>
       {!authConfigured() ? (
         <div className="bg-chalk border border-[#C9C4B2] p-5 mt-6 text-[.9rem] text-ink-2">

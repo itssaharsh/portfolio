@@ -22,19 +22,26 @@ export const supabaseStore: PostStore = {
   async listPublished(query) {
     let q = db().from("posts").select("*").eq("published", true).order("published_at", { ascending: false });
     if (query?.trim()) q = q.textSearch("fts", query.trim(), { type: "websearch" });
-    const { data } = await q;
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
     return (data ?? []) as Post[];
   },
   async getBySlug(slug) {
-    const { data } = await db().from("posts").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+    const { data, error } = await db().from("posts").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+    if (error) throw new Error(error.message);
     return (data as Post) ?? null;
   },
+  /* This client answers a failed read with { data: null, error } instead of throwing. Dropping
+     the error made a database that could not be reached look like an empty one, and the post
+     command decides whether it is about to overwrite something from exactly this list. */
   async listAll() {
-    const { data } = await db().from("posts").select("*").order("updated_at", { ascending: false });
+    const { data, error } = await db().from("posts").select("*").order("updated_at", { ascending: false });
+    if (error) throw new Error(error.message);
     return (data ?? []) as Post[];
   },
   async getById(id) {
-    const { data } = await db().from("posts").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await db().from("posts").select("*").eq("id", id).maybeSingle();
+    if (error) throw new Error(error.message);
     return (data as Post) ?? null;
   },
   async upsert(input: PostInput) {
