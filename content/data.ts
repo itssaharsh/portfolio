@@ -146,7 +146,7 @@ export const prs: PR[] = [
   { repo: "otelgo", num: 7764, opened: "2026-01-08", merged: "2026-01-13", what: "Added tests showing that merging a resource with itself changes nothing" },
   { repo: "otelgo", num: 7751, opened: "2026-01-04", merged: "2026-01-05", what: "Added tests for how attribute values get written out" },
 
-  // ---- opentelemetry-go-compile-instrumentation, two merged, three open ----
+  // ---- opentelemetry-go-compile-instrumentation, six merged ----
   { repo: "otelc", num: 1137, opened: "2026-08-17", merged: "2026-09-07", diff: "149 lines added, 108 removed",
     // From the benchmark the author posted on 6 Sep, the day before it merged. The description
     // still shows the first run, 19% and 20%, taken against an older and slower main.
@@ -155,12 +155,14 @@ export const prs: PR[] = [
   { repo: "otelc", num: 1136, opened: "2026-08-17", merged: "2026-09-29", diff: "320 lines added, 10 removed",
     what: "Stopped rewriting files and tidying them again when nothing had changed" },
   // No figures for these two. On GitHub their descriptions are swapped with each other.
-  { repo: "otelc", num: 1416, opened: "2026-09-29", diff: "44 lines added, 4 removed",
-    what: "Stops pulling a whole database query apart just to read its first word" },
-  { repo: "otelc", num: 1415, opened: "2026-09-29", diff: "65 lines added, 14 removed",
-    what: "Adds the request's label to every log line without claiming memory to do it" },
-  { repo: "otelc", num: 1425, opened: "2026-09-29", diff: "249 lines added, 11 removed",
-    what: "Fixes two tests that could fail because they did not wait for the thing they check" },
+  { repo: "otelc", num: 1416, opened: "2026-09-29", merged: "2026-10-20", diff: "44 lines added, 4 removed",
+    what: "Stopped pulling a whole database query apart just to read its first word" },
+  { repo: "otelc", num: 1415, opened: "2026-09-29", merged: "2026-10-12", diff: "65 lines added, 14 removed",
+    what: "Added the request's label to every log line without claiming memory to do it" },
+  { repo: "otelc", num: 1425, opened: "2026-09-29", merged: "2026-10-30", diff: "343 lines added, 11 removed",
+    what: "Fixed two tests that could fail because they did not wait for the thing they check" },
+  { repo: "otelc", num: 1514, opened: "2026-10-18", merged: "2026-10-30", diff: "185 lines added, 142 removed",
+    what: "Handed the database hooks their state in two small fixed shapes instead of loose lookup tables" },
 
   // ---- resource-state-metrics, one merged, one open ----
   { repo: "rsm", num: 102, opened: "2026-08-17", merged: "2026-09-20", diff: "103 lines added, 24 removed",
